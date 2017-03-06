@@ -1,3 +1,4 @@
+import 'bootstrap';
 import {Aurelia} from 'aurelia-framework'
 import environment from './environment';
 
