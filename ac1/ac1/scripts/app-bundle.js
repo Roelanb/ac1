@@ -3,7 +3,7 @@ define('app',["require", "exports"], function (require, exports) {
     Object.defineProperty(exports, "__esModule", { value: true });
     var App = (function () {
         function App() {
-            this.message = 'Hello World!';
+            this.message = 'Hello World! 2';
         }
         return App;
     }());
