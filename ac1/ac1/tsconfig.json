@@ -18,6 +18,7 @@
   "filesGlob": [
     "./src/**/*.ts",
     "./test/**/*.ts",
+    "./node_modules/@types/**/*.ts",
     "./custom_typings/**/*.d.ts"
   ],
   "atom": {

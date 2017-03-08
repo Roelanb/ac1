@@ -1,10 +1,19 @@
 
-
 <template>
+  <style>
+  #chart div {
+  display: inline-block;
+  background: #4285F4;
+  width: 20px;
+  margin-right: 3px;
+}
+</style>
+
   <require from="bootstrap/css/bootstrap.css"></require>
 
   <h1>${message} ${hello()}</h1>
 
+  <svg id="chart"></svg>
 
 
 <div class="dropdown">

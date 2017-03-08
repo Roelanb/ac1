@@ -116,6 +116,11 @@
           "aurelia-templating-binding",
           "text",
           "moment",
+         {
+"name": "d3",
+"path": "../node_modules/d3/build",
+"main": "d3.js"
+},
           "jquery",
           {
             "name": "bootstrap",
