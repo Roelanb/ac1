@@ -27,10 +27,12 @@ define('app',["require", "exports", "moment", "d3"], function (require, exports,
                 .data(data)
                 .enter()
                 .append('g');
-            g.append("circle")
-                .attr('cy', 40)
-                .attr('cx', function (d, i) { return (i + 1) * 50; })
-                .attr('r', function (d) { return d.sales; });
+            g.append("rect")
+                .attr('y', 40)
+                .attr('x', function (d, i) { return (i + 1) * 50; })
+                .attr('width', function (d) { return d.sales; })
+                .attr('height', function (d) { return d.sales; })
+                .attr('style', 'fill:rgb(0,0,255);stroke-width:3;stroke:rgb(0,0,0)');
             g.append("text")
                 .attr('y', 90)
                 .attr('x', function (d, i) { return (i + 1) * 50; })
