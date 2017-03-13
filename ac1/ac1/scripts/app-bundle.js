@@ -1,11 +1,22 @@
-define('app',["require", "exports", "moment"], function (require, exports, moment) {
+define('app',["require", "exports", "moment", "./components/timeline/timelineTask"], function (require, exports, moment, TimelineTask) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var App = (function () {
         function App() {
+            this.createData();
         }
-        App.prototype.hello = function () {
-            return moment().format();
+        App.prototype.createData = function () {
+            this.timelineTasks = new Array();
+            var tl1 = new TimelineTask.TimelineTask();
+            tl1.start = moment('2017-03-01 00:00:00');
+            tl1.end = moment('2017-03-01 02:30:00');
+            tl1.taskName = "Task1";
+            this.timelineTasks.push(tl1);
+            var tl2 = new TimelineTask.TimelineTask();
+            tl2.start = moment('2017-03-01 02:30:00');
+            tl2.end = moment('2017-03-01 05:15:00');
+            tl2.taskName = "Task2";
+            this.timelineTasks.push(tl2);
         };
         App.prototype.attached = function () {
         };
@@ -63,11 +74,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-define('components/timeline/timelineComponent',["require", "exports", "aurelia-framework", "d3"], function (require, exports, aurelia_framework_1, d3) {
+define('components/timeline/timeline-component',["require", "exports", "aurelia-framework", "moment", "d3"], function (require, exports, aurelia_framework_1, moment, d3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var TimelineComponent = (function () {
         function TimelineComponent() {
+            this.timelineWidth = 500;
+            this.startDate = moment('2017-03-01 00:00:00');
+            this.endDate = moment('2017-03-02 00:00:00');
         }
         TimelineComponent.prototype.created = function (view) {
         };
@@ -76,34 +90,31 @@ define('components/timeline/timelineComponent',["require", "exports", "aurelia-f
         TimelineComponent.prototype.unbind = function () {
         };
         TimelineComponent.prototype.attached = function () {
-            var data = [{
+            this.createD3();
+        };
+        TimelineComponent.prototype.createD3 = function () {
+            var data = [];
+            for (var _i = 0, _a = this.timelineTasks; _i < _a.length; _i++) {
+                var tlt = _a[_i];
+                data.push({
+                    xPos: 10,
+                    yPos: 1,
                     stopcode: 1,
                     stopcodeDescr: 'Running Dipping',
-                    duration: 20
-                }, {
-                    stopcode: 1,
-                    stopcodeDescr: 'Running Dipping',
-                    duration: 20
-                }, {
-                    stopcode: 1,
-                    stopcodeDescr: 'Running Dipping',
-                    duration: 20
-                }, {
-                    stopcode: 1,
-                    stopcodeDescr: 'Running Dipping',
-                    duration: 20
-                }];
-            var g = d3.select('#chart')
+                    duration: 30
+                });
+            }
+            var g = d3.select('#' + this.timelineId)
                 .selectAll("g")
                 .data(data)
                 .enter()
                 .append('g');
             g.append("rect")
-                .attr('y', 40)
-                .attr('x', function (d, i) { return (i + 1) * 50; })
+                .attr('y', this.row * 40)
+                .attr('x', function (d) { return d.xPos; })
                 .attr('width', function (d) { return d.duration; })
                 .attr('height', 10)
-                .attr('style', 'fill:rgb(0,0,255);stroke-width:3;stroke:rgb(0,0,0)');
+                .attr('style', 'fill:rgb(125,0,255);stroke-width:1;stroke:rgb(0,0,0)');
         };
         TimelineComponent.prototype.detached = function () {
         };
@@ -112,7 +123,15 @@ define('components/timeline/timelineComponent',["require", "exports", "aurelia-f
     __decorate([
         aurelia_framework_1.bindable,
         __metadata("design:type", Array)
-    ], TimelineComponent.prototype, "TimelineTasks", void 0);
+    ], TimelineComponent.prototype, "timelineTasks", void 0);
+    __decorate([
+        aurelia_framework_1.bindable,
+        __metadata("design:type", String)
+    ], TimelineComponent.prototype, "timelineId", void 0);
+    __decorate([
+        aurelia_framework_1.bindable,
+        __metadata("design:type", Number)
+    ], TimelineComponent.prototype, "row", void 0);
     TimelineComponent = __decorate([
         aurelia_framework_1.autoinject,
         __metadata("design:paramtypes", [])
@@ -131,73 +150,6 @@ define('components/timeline/timelineTask',["require", "exports"], function (requ
     exports.TimelineTask = TimelineTask;
 });
 
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-define('components/timeline/timeline-component',["require", "exports", "aurelia-framework", "d3"], function (require, exports, aurelia_framework_1, d3) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var TimelineComponent = (function () {
-        function TimelineComponent() {
-        }
-        TimelineComponent.prototype.created = function (view) {
-        };
-        TimelineComponent.prototype.bind = function (bindingContext, overrideContext) {
-        };
-        TimelineComponent.prototype.unbind = function () {
-        };
-        TimelineComponent.prototype.attached = function () {
-            var data = [{
-                    stopcode: 1,
-                    stopcodeDescr: 'Running Dipping',
-                    duration: 20
-                }, {
-                    stopcode: 1,
-                    stopcodeDescr: 'Running Dipping',
-                    duration: 20
-                }, {
-                    stopcode: 1,
-                    stopcodeDescr: 'Running Dipping',
-                    duration: 20
-                }, {
-                    stopcode: 1,
-                    stopcodeDescr: 'Running Dipping',
-                    duration: 20
-                }];
-            var g = d3.select('#timeline')
-                .selectAll("g")
-                .data(data)
-                .enter()
-                .append('g');
-            g.append("rect")
-                .attr('y', 40)
-                .attr('x', function (d, i) { return (i + 1) * 50; })
-                .attr('width', function (d) { return d.duration; })
-                .attr('height', 10)
-                .attr('style', 'fill:rgb(0,0,255);stroke-width:3;stroke:rgb(0,0,0)');
-        };
-        TimelineComponent.prototype.detached = function () {
-        };
-        return TimelineComponent;
-    }());
-    __decorate([
-        aurelia_framework_1.bindable,
-        __metadata("design:type", Array)
-    ], TimelineComponent.prototype, "TimelineTasks", void 0);
-    TimelineComponent = __decorate([
-        aurelia_framework_1.autoinject,
-        __metadata("design:paramtypes", [])
-    ], TimelineComponent);
-    exports.TimelineComponent = TimelineComponent;
-});
-
-define('text!app.html', ['module'], function(module) { module.exports = "<template><style>#chart div{display:inline-block;background:#4285f4;width:20px;margin-right:3px}</style><require from=\"bootstrap/css/bootstrap.css\"></require><require from=\"components/timeline/timeline-component\"></require><h1>${message} ${hello()}</h1><timeline-component></timeline-component><div class=\"dropdown\"><button class=\"btn btn-default dropdown-toggle\" type=\"button\" id=\"dropdownMenu1\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"true\">Dropdown <span class=\"caret\"></span></button><ul class=\"dropdown-menu\" aria-labelledby=\"dropdownMenu1\"><li><a href=\"#\">Action</a></li><li><a href=\"#\">Another action</a></li><li><a href=\"#\">Something else here</a></li><li role=\"separator\" class=\"divider\"></li><li><a href=\"#\">Separated link</a></li></ul></div><button type=\"button\" class=\"btn btn-default\" aria-label=\"Left Align\"><span class=\"glyphicon glyphicon-align-left\" aria-hidden=\"true\"></span></button></template>"; });
-define('text!components/timeline/timelineComponent.html', ['module'], function(module) { module.exports = "<template><svg id=\"timeline\"></svg></template>"; });
-define('text!components/timeline/timeline-component.html', ['module'], function(module) { module.exports = "<template><svg id=\"timeline\"></svg></template>"; });
+define('text!app.html', ['module'], function(module) { module.exports = "<template><style>#chart div{display:inline-block;background:#4285f4;width:20px;margin-right:3px}</style><require from=\"bootstrap/css/bootstrap.css\"></require><require from=\"components/timeline/timeline-component\"></require><timeline-component row.bind=\"1\" timeline-id=\"tl1\" timeline-tasks.bind=\"timelineTasks\"></timeline-component></template>"; });
+define('text!components/timeline/timeline-component.html', ['module'], function(module) { module.exports = "<template><svg id=\"${timelineId}\"></svg></template>"; });
 //# sourceMappingURL=app-bundle.js.map
