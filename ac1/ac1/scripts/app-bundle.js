@@ -10,13 +10,39 @@ define('app',["require", "exports", "moment", "./components/timeline/timelineTas
             var tl1 = new TimelineTask.TimelineTask();
             tl1.start = moment('2017-03-01 00:00:00');
             tl1.end = moment('2017-03-01 02:30:00');
-            tl1.taskName = "Task1";
+            tl1.taskGroup = "Production";
+            tl1.taskName = "Running Printing";
             this.timelineTasks.push(tl1);
             var tl2 = new TimelineTask.TimelineTask();
             tl2.start = moment('2017-03-01 02:30:00');
             tl2.end = moment('2017-03-01 05:15:00');
-            tl2.taskName = "Task2";
+            tl2.taskGroup = "Production";
+            tl2.taskName = "Stop 125";
             this.timelineTasks.push(tl2);
+            var tl3 = new TimelineTask.TimelineTask();
+            tl3.start = moment('2017-03-01 05:15:00');
+            tl3.end = moment('2017-03-01 06:10:00');
+            tl3.taskGroup = "ChangeOver";
+            tl3.taskName = "Start";
+            this.timelineTasks.push(tl3);
+            var tl4 = new TimelineTask.TimelineTask();
+            tl4.start = moment('2017-03-01 06:10:00');
+            tl4.end = moment('2017-03-01 06:45:00');
+            tl4.taskGroup = "ChangeOver";
+            tl4.taskName = "Cleaning";
+            this.timelineTasks.push(tl4);
+            var tl5 = new TimelineTask.TimelineTask();
+            tl5.start = moment('2017-03-01 06:45:00');
+            tl5.end = moment('2017-03-01 07:05:00');
+            tl5.taskGroup = "ChangeOver";
+            tl5.taskName = "Ending";
+            this.timelineTasks.push(tl5);
+            var tl6 = new TimelineTask.TimelineTask();
+            tl6.start = moment('2017-03-01 07:05:00');
+            tl6.end = moment('2017-03-01 12:15:00');
+            tl6.taskGroup = "Production";
+            tl6.taskName = "Running Printing";
+            this.timelineTasks.push(tl6);
         };
         App.prototype.attached = function () {
         };
@@ -96,12 +122,17 @@ define('components/timeline/timeline-component',["require", "exports", "aurelia-
             var data = [];
             for (var _i = 0, _a = this.timelineTasks; _i < _a.length; _i++) {
                 var tlt = _a[_i];
+                var width = +this.endDate.format('X') - +this.startDate.format('X');
+                var positionStart = 1 - (+this.endDate.format('X') - +tlt.start.format('X')) / width;
+                ;
+                var positionEnd = 1 - (+this.endDate.format('X') - +tlt.end.format('X')) / width;
+                ;
                 data.push({
-                    xPos: 10,
+                    xPos: this.timelineWidth * positionStart,
                     yPos: 1,
                     stopcode: 1,
-                    stopcodeDescr: 'Running Dipping',
-                    duration: 30
+                    stopcodeDescr: tlt.taskName,
+                    duration: this.timelineWidth * (positionEnd - positionStart),
                 });
             }
             var g = d3.select('#' + this.timelineId)
@@ -113,8 +144,8 @@ define('components/timeline/timeline-component',["require", "exports", "aurelia-
                 .attr('y', this.row * 40)
                 .attr('x', function (d) { return d.xPos; })
                 .attr('width', function (d) { return d.duration; })
-                .attr('height', 10)
-                .attr('style', 'fill:rgb(125,0,255);stroke-width:1;stroke:rgb(0,0,0)');
+                .attr('height', 20)
+                .attr('style', 'fill:rgb(125,0,255);stroke-width:0;stroke:rgb(0,0,0)');
         };
         TimelineComponent.prototype.detached = function () {
         };

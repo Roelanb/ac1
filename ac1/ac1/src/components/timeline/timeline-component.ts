@@ -45,12 +45,20 @@ export class TimelineComponent {
         var data = [];
 
         for(let tlt of this.timelineTasks) {
+
+            var width = +this.endDate.format('X') - +this.startDate.format('X');
+            var positionStart = 1-(+this.endDate.format('X') - +tlt.start.format('X'))/width;;
+            var positionEnd = 1-(+this.endDate.format('X') - +tlt.end.format('X'))/width;;
+            
+
             data.push({
-                xPos: 10,
+                
+                                 xPos: this.timelineWidth*positionStart,
                 yPos: 1,
-                 stopcode: 1,
-            stopcodeDescr: 'Running Dipping',
-            duration: 30
+                stopcode: 1,
+                name: tlt.name,
+                group: tlt.group,
+                duration: this.timelineWidth*(positionEnd-positionStart),
             });
         }
 
@@ -65,8 +73,14 @@ export class TimelineComponent {
             .attr('y', this.row*40)
             .attr('x', (d) => d.xPos)
             .attr('width', (d) => d.duration)
-            .attr('height', 10)
-            .attr('style', 'fill:rgb(125,0,255);stroke-width:1;stroke:rgb(0,0,0)')
+            .attr('height', 20)
+            .attr('style', 'fill:rgb(125,0,255);stroke-width:0;stroke:rgb(0,0,0)')
+            g.append("rect")
+            .attr('y', this.row*40)
+            .attr('x', (d) => d.xPos)
+            .attr('width', (d) => d.duration)
+            .attr('height', 20)
+            .attr('style', 'fill:rgb(125,0,255);stroke-width:0;stroke:rgb(0,0,0)')
     }
 
     detached() {
