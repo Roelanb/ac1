@@ -1,19 +1,11 @@
 
 <template>
-  <style>
-  #chart div {
-  display: inline-block;
-  background: #4285F4;
-  width: 20px;
-  margin-right: 3px;
-}
-</style>
-
+ 
   <require from="bootstrap/css/bootstrap.css"></require>
   <require from="components/timeline/timeline-component"> </require>
 
 
-    <timeline-component row.bind=1 timeline-id="tl1" timeline-tasks.bind="timelineTasks"></timeline-component>
+    <timeline-component row.bind=1 timeline-id="tl1" timeline-groups.bind="timelineGroups"></timeline-component>
 
 
 </template>

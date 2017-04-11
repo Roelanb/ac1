@@ -6,43 +6,23 @@ define('app',["require", "exports", "moment", "./components/timeline/timelineTas
             this.createData();
         }
         App.prototype.createData = function () {
-            this.timelineTasks = new Array();
-            var tl1 = new TimelineTask.TimelineTask();
-            tl1.start = moment('2017-03-01 00:00:00');
-            tl1.end = moment('2017-03-01 02:30:00');
-            tl1.taskGroup = "Production";
-            tl1.taskName = "Running Printing";
-            this.timelineTasks.push(tl1);
-            var tl2 = new TimelineTask.TimelineTask();
-            tl2.start = moment('2017-03-01 02:30:00');
-            tl2.end = moment('2017-03-01 05:15:00');
-            tl2.taskGroup = "Production";
-            tl2.taskName = "Stop 125";
-            this.timelineTasks.push(tl2);
-            var tl3 = new TimelineTask.TimelineTask();
-            tl3.start = moment('2017-03-01 05:15:00');
-            tl3.end = moment('2017-03-01 06:10:00');
-            tl3.taskGroup = "ChangeOver";
-            tl3.taskName = "Start";
-            this.timelineTasks.push(tl3);
-            var tl4 = new TimelineTask.TimelineTask();
-            tl4.start = moment('2017-03-01 06:10:00');
-            tl4.end = moment('2017-03-01 06:45:00');
-            tl4.taskGroup = "ChangeOver";
-            tl4.taskName = "Cleaning";
-            this.timelineTasks.push(tl4);
-            var tl5 = new TimelineTask.TimelineTask();
-            tl5.start = moment('2017-03-01 06:45:00');
-            tl5.end = moment('2017-03-01 07:05:00');
-            tl5.taskGroup = "ChangeOver";
-            tl5.taskName = "Ending";
-            this.timelineTasks.push(tl5);
-            var tl6 = new TimelineTask.TimelineTask();
-            tl6.start = moment('2017-03-01 07:05:00');
-            tl6.end = moment('2017-03-01 12:15:00');
-            tl6.taskGroup = "Production";
-            tl6.taskName = "Running Printing";
-            this.timelineTasks.push(tl6);
+            this.timelineGroups = new Array();
+            var tl1 = new TimelineTask.TimelineGroup();
+            tl1.name = "Production1";
+            tl1.addTask(moment('2017-03-01 00:00:00'), moment('2017-03-01 02:30:00'), "Running Printing");
+            tl1.addTask(moment('2017-03-01 02:30:00'), moment('2017-03-01 05:15:00'), "Stop 125");
+            this.timelineGroups.push(tl1);
+            var tl2 = new TimelineTask.TimelineGroup();
+            tl2.name = "Changeover";
+            tl2.addTask(moment('2017-03-01 05:15:00'), moment('2017-03-01 06:00:00'), "Start");
+            tl2.addTask(moment('2017-03-01 06:00:00'), moment('2017-03-01 06:45:00'), "Cleaning");
+            tl2.addTask(moment('2017-03-01 06:45:00'), moment('2017-03-01 07:15:00'), "End");
+            this.timelineGroups.push(tl2);
+            var tl3 = new TimelineTask.TimelineGroup();
+            tl3.name = "Production2";
+            tl3.addTask(moment('2017-03-01 07:15:00'), moment('2017-03-01 08:30:00'), "Running Printing");
+            tl3.addTask(moment('2017-03-01 08:30:00'), moment('2017-03-01 12:15:00'), "Stop 456");
+            this.timelineGroups.push(tl3);
         };
         App.prototype.attached = function () {
         };
@@ -105,7 +85,7 @@ define('components/timeline/timeline-component',["require", "exports", "aurelia-
     Object.defineProperty(exports, "__esModule", { value: true });
     var TimelineComponent = (function () {
         function TimelineComponent() {
-            this.timelineWidth = 500;
+            this.timelineWidth = 1500;
             this.startDate = moment('2017-03-01 00:00:00');
             this.endDate = moment('2017-03-02 00:00:00');
         }
@@ -119,33 +99,56 @@ define('components/timeline/timeline-component',["require", "exports", "aurelia-
             this.createD3();
         };
         TimelineComponent.prototype.createD3 = function () {
-            var data = [];
-            for (var _i = 0, _a = this.timelineTasks; _i < _a.length; _i++) {
-                var tlt = _a[_i];
-                var width = +this.endDate.format('X') - +this.startDate.format('X');
-                var positionStart = 1 - (+this.endDate.format('X') - +tlt.start.format('X')) / width;
-                ;
-                var positionEnd = 1 - (+this.endDate.format('X') - +tlt.end.format('X')) / width;
-                ;
-                data.push({
-                    xPos: this.timelineWidth * positionStart,
+            var dataTasks = [];
+            for (var _i = 0, _a = this.timelineGroups; _i < _a.length; _i++) {
+                var tlg = _a[_i];
+                dataTasks.push({
+                    xPos: +tlg.start.format('X'),
                     yPos: 1,
                     stopcode: 1,
-                    stopcodeDescr: tlt.taskName,
-                    duration: this.timelineWidth * (positionEnd - positionStart),
+                    name: tlg.name,
+                    duration: +tlg.end.format('X') - +tlg.start.format('X'),
                 });
+                for (var _b = 0, _c = tlg.tasks; _b < _c.length; _b++) {
+                    var tlt = _c[_b];
+                    dataTasks.push({
+                        xPos: +tlt.start.format('X'),
+                        yPos: 2,
+                        stopcode: 1,
+                        name: tlt.name,
+                        duration: +tlt.end.format('X') - +tlt.start.format('X'),
+                    });
+                }
             }
-            var g = d3.select('#' + this.timelineId)
-                .selectAll("g")
-                .data(data)
+            console.log(dataTasks);
+            var scaleX = d3.scaleLinear()
+                .domain([+this.startDate.format('X'), +this.endDate.format('X')])
+                .range([0, this.timelineWidth]);
+            var scaleW = d3.scaleLinear()
+                .domain([0, +this.endDate.format('X') - +this.startDate.format('X')])
+                .range([0, this.timelineWidth]);
+            var scaleY = d3.scaleLinear()
+                .domain([0, 5])
+                .range([0, 100]);
+            var svg = d3.select('#' + this.timelineId);
+            svg.selectAll("rect")
+                .data(dataTasks)
                 .enter()
-                .append('g');
-            g.append("rect")
-                .attr('y', this.row * 40)
-                .attr('x', function (d) { return d.xPos; })
-                .attr('width', function (d) { return d.duration; })
-                .attr('height', 20)
-                .attr('style', 'fill:rgb(125,0,255);stroke-width:0;stroke:rgb(0,0,0)');
+                .append("rect")
+                .attr('y', function (dg) { return scaleY(dg.yPos); })
+                .attr('x', function (dg) { return scaleX(dg.xPos); })
+                .attr('width', function (dg) { return scaleW(dg.duration); })
+                .attr('height', scaleY(1))
+                .attr('fill', 'blue')
+                .attr('style', 'stroke-width:1;stroke:rgb(0,0,0)');
+            svg.selectAll("text")
+                .data(dataTasks)
+                .enter()
+                .append("text")
+                .text(function (d) { return d.name; })
+                .attr('text-anchor', 'middle')
+                .attr('x', function (dg) { return scaleX(dg.xPos); })
+                .attr('y', function (dg) { return scaleY(dg.yPos); });
         };
         TimelineComponent.prototype.detached = function () {
         };
@@ -154,7 +157,7 @@ define('components/timeline/timeline-component',["require", "exports", "aurelia-
     __decorate([
         aurelia_framework_1.bindable,
         __metadata("design:type", Array)
-    ], TimelineComponent.prototype, "timelineTasks", void 0);
+    ], TimelineComponent.prototype, "timelineGroups", void 0);
     __decorate([
         aurelia_framework_1.bindable,
         __metadata("design:type", String)
@@ -173,6 +176,28 @@ define('components/timeline/timeline-component',["require", "exports", "aurelia-
 define('components/timeline/timelineTask',["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    var TimelineGroup = (function () {
+        function TimelineGroup() {
+            this.tasks = new Array();
+        }
+        TimelineGroup.prototype.addTask = function (start, end, name) {
+            var task = new TimelineTask();
+            task.start = start;
+            task.end = end;
+            task.name = name;
+            this.tasks.push(task);
+            if (!this.start)
+                this.start = start;
+            if (!this.end)
+                this.end = end;
+            if (this.start > start)
+                this.start = start;
+            if (this.end < end)
+                this.end = end;
+        };
+        return TimelineGroup;
+    }());
+    exports.TimelineGroup = TimelineGroup;
     var TimelineTask = (function () {
         function TimelineTask() {
         }
@@ -181,6 +206,6 @@ define('components/timeline/timelineTask',["require", "exports"], function (requ
     exports.TimelineTask = TimelineTask;
 });
 
-define('text!app.html', ['module'], function(module) { module.exports = "<template><style>#chart div{display:inline-block;background:#4285f4;width:20px;margin-right:3px}</style><require from=\"bootstrap/css/bootstrap.css\"></require><require from=\"components/timeline/timeline-component\"></require><timeline-component row.bind=\"1\" timeline-id=\"tl1\" timeline-tasks.bind=\"timelineTasks\"></timeline-component></template>"; });
-define('text!components/timeline/timeline-component.html', ['module'], function(module) { module.exports = "<template><svg id=\"${timelineId}\"></svg></template>"; });
+define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"bootstrap/css/bootstrap.css\"></require><require from=\"components/timeline/timeline-component\"></require><timeline-component row.bind=\"1\" timeline-id=\"tl1\" timeline-groups.bind=\"timelineGroups\"></timeline-component></template>"; });
+define('text!components/timeline/timeline-component.html', ['module'], function(module) { module.exports = "<template><svg id=\"${timelineId}\" style=\"width:100%\"></svg></template>"; });
 //# sourceMappingURL=app-bundle.js.map

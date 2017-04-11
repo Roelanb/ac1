@@ -4,6 +4,8 @@ export class TimelineGroup {
     name: string;
     color: string;
 
+    start: moment.Moment;
+    end: moment.Moment;
     tasks: Array<TimelineTask>;
 
     constructor() {
@@ -19,6 +21,12 @@ export class TimelineGroup {
         task.name = name;
         
         this.tasks.push(task);
+
+        if (!this.start) this.start = start;
+        if (!this.end) this.end = end;
+
+        if (this.start>start) this.start = start;
+        if (this.end<end) this.end = end;
     }
 }
 
