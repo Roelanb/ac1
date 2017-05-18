@@ -86,6 +86,9 @@ define('components/timeline/timeline-component',["require", "exports", "aurelia-
     var TimelineComponent = (function () {
         function TimelineComponent() {
             this.timelineWidth = 1500;
+            this.timelineHeight = 80;
+            this.groupHeight = 0.3;
+            this.detailHeight = 0.7;
             this.startDate = moment('2017-03-01 00:00:00');
             this.endDate = moment('2017-03-02 00:00:00');
         }
@@ -104,19 +107,21 @@ define('components/timeline/timeline-component',["require", "exports", "aurelia-
                 var tlg = _a[_i];
                 dataTasks.push({
                     xPos: +tlg.start.format('X'),
-                    yPos: 1,
+                    yPos: 0,
+                    height: this.groupHeight,
                     stopcode: 1,
                     name: tlg.name,
-                    duration: +tlg.end.format('X') - +tlg.start.format('X'),
+                    width: +tlg.end.format('X') - +tlg.start.format('X'),
                 });
                 for (var _b = 0, _c = tlg.tasks; _b < _c.length; _b++) {
                     var tlt = _c[_b];
                     dataTasks.push({
                         xPos: +tlt.start.format('X'),
-                        yPos: 2,
+                        yPos: this.groupHeight,
+                        height: this.detailHeight,
                         stopcode: 1,
                         name: tlt.name,
-                        duration: +tlt.end.format('X') - +tlt.start.format('X'),
+                        width: +tlt.end.format('X') - +tlt.start.format('X'),
                     });
                 }
             }
@@ -128,8 +133,8 @@ define('components/timeline/timeline-component',["require", "exports", "aurelia-
                 .domain([0, +this.endDate.format('X') - +this.startDate.format('X')])
                 .range([0, this.timelineWidth]);
             var scaleY = d3.scaleLinear()
-                .domain([0, 5])
-                .range([0, 100]);
+                .domain([0, 1])
+                .range([0, this.timelineHeight]);
             var svg = d3.select('#' + this.timelineId);
             svg.selectAll("rect")
                 .data(dataTasks)
@@ -137,9 +142,9 @@ define('components/timeline/timeline-component',["require", "exports", "aurelia-
                 .append("rect")
                 .attr('y', function (dg) { return scaleY(dg.yPos); })
                 .attr('x', function (dg) { return scaleX(dg.xPos); })
-                .attr('width', function (dg) { return scaleW(dg.duration); })
-                .attr('height', scaleY(1))
-                .attr('fill', 'blue')
+                .attr('width', function (dg) { return scaleW(dg.width); })
+                .attr('height', function (dg) { return scaleY(dg.height); })
+                .attr('fill', 'yellow')
                 .attr('style', 'stroke-width:1;stroke:rgb(0,0,0)');
             svg.selectAll("text")
                 .data(dataTasks)
@@ -147,8 +152,8 @@ define('components/timeline/timeline-component',["require", "exports", "aurelia-
                 .append("text")
                 .text(function (d) { return d.name; })
                 .attr('text-anchor', 'middle')
-                .attr('x', function (dg) { return scaleX(dg.xPos); })
-                .attr('y', function (dg) { return scaleY(dg.yPos); });
+                .attr('x', function (dg) { return scaleX(dg.xPos + dg.width / 2); })
+                .attr('y', function (dg) { return scaleY(dg.yPos + dg.height / 2); });
         };
         TimelineComponent.prototype.detached = function () {
         };
